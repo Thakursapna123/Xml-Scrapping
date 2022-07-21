@@ -1,0 +1,118 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<html>
+<head>
+</head>
+<body>
+<form action="" method="POST">
+    {% csrf_token %} 
+    {{form.as_p}}
+    <input type="hidden" name="modify" id="modify">
+    <button type="submit" name="submit" id="add_student" value="submit" class="btn btn-default">Sumbit</button>
+</form>
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">First Name</th>
+        <th scope="col">Last Name</th>
+        <th scope="col">Age</th>
+        <th scope="col">City</th>
+        <th scope="col">Address</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for a in obj%}
+      <tr>
+          <th scope="row">{{a.id }} </th>
+          <td>{{a.first_name }}</td>
+          <td>{{a.last_name}}</td>
+          <td>{{a.age}}</td>
+          <td>{{a.city}}</td> 
+          <td>{{a.address}}</td>     
+          <td><input type="button" data-id="{{a.id}}" name="submit" class="del_student" value="Delete" class="btn btn-default"></button></td>
+          <td><input type="button" data-id="{{a.id}}" name="submit" class="edit_student" value="Edit" class="btn btn-default"></button></td>
+
+          </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</html>
+<script>
+    {% block javascript %}
+    $('#add_student').on('click',function(){
+        var first_name =$('#first_name').val()
+        var last_name =$('#last_name').val()
+        var age =$('#age').val()
+        var city =$('#city').val()
+        var address=$('#address').val()
+        var modify=$('#modify').val()
+        data={
+            first_name:first_name,
+            last_name:last_name,
+            age:age,
+            city:city,
+            modify:modify,
+            address:address,
+        }
+        
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "show" %}',
+            data: data,
+            success: function(response){
+                
+                alert(response.message)
+
+            
+              
+            }
+        })
+
+    })
+
+    $('.del_student').on('click',function(){
+        var id =$(this).attr('data-id')
+        data={
+            id:id
+        }
+        $.ajax({
+            type: 'GET',
+            url: '{% url "del_student" %}',
+            data: data,
+            success:function(data){
+                alert(data.message)
+                     location.reload()
+            }
+        })
+    
+    })
+    $('.edit_student').on('click',function(){
+        var id =$(this).attr('data-id')
+        data={
+            id:id
+        }
+        $.ajax({
+            type: 'POST',
+            url: '{% url "edit_student" %}',
+            data: data,
+            dataType:'json',
+            success:function(data){
+                $('#modify').val(data.id)
+                $('#first_name').val(data.first_name)
+                $('#last_name').val(data.last_name)
+                $('#age').val(data.age)
+                $('#city').val(data.city)
+
+                     
+            }
+        })
+    
+    })
+
+
+
+    {% endblock%}
+
+</script>
